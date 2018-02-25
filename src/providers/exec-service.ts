@@ -47,7 +47,7 @@ export class ExecService {
             if (auth) {
                 this.commonService.textToSpeech(message + 'Pour me donner l\'accès,  tu dois appuyer sur la flêche droite de l\'écran de la Freebox server !');
                 this.subscriptionTimer = Observable.interval(2500).subscribe(x => {
-                    this.checkStatus();
+                    this.checkStatusFreebox();
                 });
             } else {
                 this.commonService.textToSpeech(message + 'Mais je ne parviens pas à m\'y connecté, je suis désolé.');
@@ -55,7 +55,7 @@ export class ExecService {
         });
     }
 
-    checkStatus () {
+    checkStatusFreebox () {
         this.freeboxService.getStatus().then(status => {
             if (status=='granted') {
                 this.commonService.textToSpeech('C\'est bon ! Je suis connecté !');
@@ -71,6 +71,67 @@ export class ExecService {
         this.commonService.getGranted().then(granted => {
             if (granted) {
                 this.commonService.textToSpeech('Attends quelques secondes s\'il te plait.');
+                this.freeboxService.launch('startMedia').then(launch => {
+                    if (!launch) {
+                        this.commonService.textToSpeech('Je ne parviens pas à lancer la musique !');
+                    }
+                });
+            } else {
+                const message: any = 'Je dois d\'abord m\'authentifier sur la Freebox ! Ensuite je pourrais lancer ta commande. ';
+                this.authFreebox(message);
+            }
+        });
+    }
+
+    stopMusicFreebox(parameters) {
+        this.commonService.getGranted().then(granted => {
+            if (granted) {
+                this.commonService.textToSpeech('ok');
+                this.freeboxService.launch('stopMedia').then(stop => {
+                    if (!stop) {
+                        this.commonService.textToSpeech('Je ne parviens pas à arrêter la '+parameters[0]+' !');
+                    }
+                });
+            } else {
+                const message: any = 'Je dois d\'abord m\'authentifier sur la Freebox ! Ensuite je pourrais lancer ta commande. ';
+                this.authFreebox(message);
+            }
+        });
+    }
+
+    showServerListFreebox() {
+        this.commonService.getGranted().then(granted => {
+            if (granted) {
+                this.commonService.textToSpeech('Attends quelques secondes s\'il te plait.');
+                this.freeboxService.launch('getServerMediaList').then(server => {
+                    if (!server) {
+                        this.commonService.textToSpeech('Je ne parviens pas à afficher les serveurs !');
+                    } else {
+                        this.commonService.textToSpeech('Et voilà !');
+                    }
+                });
+            } else {
+                const message: any = 'Je dois d\'abord m\'authentifier sur la Freebox ! Ensuite je pourrais lancer ta commande. ';
+                this.authFreebox(message);
+            }
+        });
+    }
+
+    showDirectoryInfoFreebox(parameters) {
+        this.commonService.getGranted().then(granted => {
+            if (granted) {
+                this.commonService.textToSpeech('Attends quelques secondes s\'il te plait.');
+                const param: any = [];
+                if (parameters[0] == 'musique') {
+                    param['path'] = '/Disque dur/Musiques/compil_test';
+                }
+                this.freeboxService.launch('getDirectoryInfo', param).then(directoryInfo => {
+                    if (!directoryInfo) {
+                        this.commonService.textToSpeech('Je ne parviens pas à afficher les informations du répertoire !');
+                    } else {
+                        this.commonService.textToSpeech('Et voilà !');
+                    }
+                });
             } else {
                 const message: any = 'Je dois d\'abord m\'authentifier sur la Freebox ! Ensuite je pourrais lancer ta commande. ';
                 this.authFreebox(message);

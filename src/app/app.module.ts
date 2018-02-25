@@ -5,8 +5,8 @@ import {IonicStorageModule} from '@ionic/storage';
 import {HttpClientModule} from '@angular/common/http';
 import {MyApp} from './app.component';
 
-import {AboutPage} from '../pages/about/about';
-import {ContactPage} from '../pages/contact/contact';
+import {CommandPage} from '../pages/command/command';
+import {ConfigPage} from '../pages/config/config';
 import {HomePage} from '../pages/home/home';
 import {TabsPage} from '../pages/tabs/tabs';
 
@@ -26,8 +26,8 @@ import {NativeStorage} from '@ionic-native/native-storage';
 @NgModule({
     declarations: [
         MyApp,
-        AboutPage,
-        ContactPage,
+        CommandPage,
+        ConfigPage,
         HomePage,
         TabsPage
     ],
@@ -40,8 +40,8 @@ import {NativeStorage} from '@ionic-native/native-storage';
     bootstrap: [IonicApp],
     entryComponents: [
         MyApp,
-        AboutPage,
-        ContactPage,
+        CommandPage,
+        ConfigPage,
         HomePage,
         TabsPage
     ],

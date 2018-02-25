@@ -68,11 +68,12 @@ export class SpeechService {
         } else {
             if (annyang) {
                 annyang.addCommands(this.commands);
+                console.log(this.commands);
                 annyang.start();
             } else {
                 console.log('error');
             }
-            /*const match:any = "connecte-toi à la freebox";
+            /*const match:any = 'affiches-moi le répertoire musique';
             this.checkCommand(match);*/
         }
     }
@@ -110,6 +111,9 @@ export class SpeechService {
         commands.push({name: 'balance la musique', execFunction: function() { motor.execService.launchMusicFreebox();}});
         commands.push({name: 'balance un morceau', execFunction: function() { motor.execService.launchMusicFreebox();}});
         commands.push({name: 'mets un peu de musique', execFunction: function() { motor.execService.launchMusicFreebox();}});
+        commands.push({name: 'arrête la *media', execFunction: function(parameters) { motor.execService.stopMusicFreebox(parameters);}});
+        commands.push({name: 'affiches-moi les serveurs disponibles', execFunction: function() { motor.execService.showServerListFreebox();}});
+        commands.push({name: 'affiches-moi le répertoire *directory', execFunction: function(parameters) { motor.execService.showDirectoryInfoFreebox(parameters);}});
 
         for (let i = 0; i < commands.length; i++) {
             this.regexCommands.push(this.commandToRegExp(commands[i].name));
