@@ -66,17 +66,17 @@ export class SpeechService {
                 }
             });
         } else {
-            if (annyang) {
+            /*if (annyang) {
                 annyang.addCommands(this.commands);
                 console.log(this.commands);
                 annyang.start();
             } else {
                 console.log('error');
-            }
+            }*/
             //const match:any = 'mets la chaîne france 2';
-            //const match:any = 'balance la vidéo';
+            const match:any = 'balance la vidéo';
             //const match:any = 'arrête la musique';
-            //this.checkCommand(match);
+            this.checkCommand(match);
         }
     }
 
@@ -106,7 +106,9 @@ export class SpeechService {
         commands.push({name: 'coucou', execFunction: function() { motor.commonService.textToSpeech('Coucou Fred !'); }});
         commands.push({name: 'hello', execFunction: function() { motor.commonService.textToSpeech('Hello Fred !'); }});
         commands.push({name: 'comment vas-tu', execFunction: function() { motor.commonService.textToSpeech('ça va et toi ?'); }});
-        commands.push({name: 'coucou c\'est *name', execFunction: function(parameters) { motor.execService.checkCoucou(parameters); }});
+        commands.push({name: 'coucou c\'est *name', execFunction: function(parameters) { motor.execService.checkCoucou(motor, parameters); }});
+        commands.push({name: 'ton maître', execFunction: function() { motor.execService.analizeName(['ton maître']); }});
+        commands.push({name: 'c\'est *name', execFunction: function(parameters) { motor.execService.analizeName(parameters); }});
         commands.push({name: '*action la lumière du *room', execFunction: function(parameters) { motor.execService.checkLight(parameters, 'du');}});
         commands.push({name: '*action la lumière de la *room', execFunction: function(parameters) { motor.execService.checkLight(parameters, 'de la');}});
         commands.push({name: 'connecte-toi à la freebox', execFunction: function() { motor.execService.connectFreebox();}});

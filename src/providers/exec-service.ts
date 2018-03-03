@@ -1,51 +1,61 @@
 import {Injectable} from '@angular/core';
 import {CommonService} from './common-service';
+import {ConfigService} from './config-service';
 import {FreeboxService} from './freebox-service';
+import {SpeechService} from './speech-service';
 import {MediaModel} from '../models/media.model';
 import {ChannelModel} from '../models/channel.model';
-import { ISubscription } from 'rxjs/Subscription';
+import {ISubscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/map';
-import { Observable } from 'rxjs/Rx';
+import {Observable} from 'rxjs/Rx';
 
 @Injectable()
 export class ExecService {
 
-    private subscriptionTimer:ISubscription;
+    private subscriptionTimer: ISubscription;
     private medias: any = [];
     private actionList: any = [];
-    private urlExternFreebox: any = '';
-    private urlLocalFreebox: any = '';
-    private urlPlaylistFreebox: any = '';
+    private waitingResponse: boolean = false;
 
-    constructor(private commonService: CommonService, private freeboxService: FreeboxService) {
-        this.urlExternFreebox = 'https://fwed.freeboxos.fr:16129';
-        this.urlLocalFreebox = 'http://mafreebox.freebox.fr';
-        this.urlPlaylistFreebox = '/playlist/playlist.m3u'; // dev
-        //this.urlPlaylistFreebox = 'http://mafreebox.freebox.fr/freeboxtv/playlist.m3u'; // prod
+    constructor(private commonService: CommonService, private freeboxService: FreeboxService,
+                private configService: ConfigService) {
     }
 
     checkNextAction() {
         if (this.actionList.length > 0) {
-            console.log('this.actionList before', this.actionList);
             const action: string = this.actionList[0].action;
             const parameters: any = this.actionList[0].parameters;
             this.actionList = this.actionList.slice(1);
-            console.log('this.actionList after', this.actionList);
             this[action](parameters);
         }
     }
 
-    checkCoucou(parameters) {
-        if (parameters[0]==='moi') {
+    checkCoucou(speechService: SpeechService, parameters) {
+        if (parameters[0] === 'moi') {
             this.commonService.textToSpeech('Qui ça moi ?');
+            this.waitingResponse = true;
+            speechService.startSpeechRecognition();
         } else {
             this.commonService.textToSpeech('Coucou ' + parameters[0] + ' !');
         }
     }
 
+    analizeName(parameters) {
+        if (this.waitingResponse) {
+            this.waitingResponse = false;
+            if (parameters[0] === 'ton maître') {
+                this.commonService.textToSpeech('Putain ! comment tu te la joues !');
+            } else {
+                this.commonService.textToSpeech('Salut ' + parameters[0] + ' !');
+            }
+        } else {
+            this.commonService.textToSpeech('Et alors ?');
+        }
+    }
+
     checkLight(parameters, conjonction) {
-        let message: any = 'La lumière '+conjonction+' ' + parameters[1] + ' est ';
-        if (parameters[0]==='allume') {
+        let message: any = 'La lumière ' + conjonction + ' ' + parameters[1] + ' est ';
+        if (parameters[0] === 'allume') {
             this.commonService.textToSpeech(message + 'allumée !');
         } else {
             this.commonService.textToSpeech(message + 'éteinte !');
@@ -53,7 +63,7 @@ export class ExecService {
     }
 
     connectFreebox() {
-        this.commonService.getGranted().then(granted => {
+        this.commonService.getElement('granted').then(granted => {
             if (granted) {
                 this.commonService.textToSpeech('Je suis connecté !');
             } else {
@@ -76,37 +86,37 @@ export class ExecService {
         });
     }
 
-    checkStatusFreebox () {
+    checkStatusFreebox() {
         this.freeboxService.getStatus().then(status => {
-            if (status=='granted') {
+            if (status == 'granted') {
                 this.commonService.textToSpeech('C\'est bon ! Je suis connecté !');
-                this.subscriptionTimer.unsubscribe ();
-            } else if (status!='pending') {
-                this.subscriptionTimer.unsubscribe ();
+                this.subscriptionTimer.unsubscribe();
+            } else if (status != 'pending') {
+                this.subscriptionTimer.unsubscribe();
                 this.commonService.textToSpeech('Une erreur s\'est produite, je te conseille de réessayer !');
             }
         });
     }
 
     launchMediaFreebox(parameters) {
-        this.commonService.getGranted().then(granted => {
+        this.commonService.getElement('granted').then(granted => {
             if (granted) {
-                let getterFunction: any = '';
+                let getterValue: any = '';
                 if (parameters[0] === 'musique') {
-                    getterFunction = 'getMusics';
+                    getterValue = 'musics';
                 } else if (parameters[0] === 'vidéo') {
-                    getterFunction = 'getVideos';
+                    getterValue = 'videos';
                 }
-                this.commonService[getterFunction]().then(getMedias => {
+                this.commonService.getElement(getterValue).then(getMedias => {
                     if (getMedias) {
                         const medias: any = getMedias;
                         if (medias.length > 0) {
-                            const media: MediaModel = medias[Math.floor(Math.random()*medias.length)];
+                            const media: MediaModel = medias[Math.floor(Math.random() * medias.length)];
                             this.getShareLinkFreebox(media).then(shareLink => {
                                 if (shareLink) {
                                     const link: any = shareLink.toString() + '/' + media.title.replace(' ', '%20');
                                     const param: any = [];
-                                    param['media'] = link.replace(this.urlExternFreebox, this.urlLocalFreebox);
+                                    param['media'] = link.replace(this.configService.urlExternFreebox, this.configService.urlLocalFreebox);
                                     this.freeboxService.launch('startMedia', param).then(launch => {
                                         if (!launch) {
                                             this.commonService.textToSpeech('Je ne parviens pas à lancer la ' + parameters[0] + ' !');
@@ -200,12 +210,12 @@ export class ExecService {
     }
 
     stopMediaFreebox(parameters) {
-        this.commonService.getGranted().then(granted => {
+        this.commonService.getElement('granted').then(granted => {
             if (granted) {
                 this.commonService.textToSpeech('ok');
                 this.freeboxService.launch('stopMedia').then(stop => {
                     if (!stop) {
-                        this.commonService.textToSpeech('Je ne parviens pas à arrêter la '+parameters[0]+' !');
+                        this.commonService.textToSpeech('Je ne parviens pas à arrêter la ' + parameters[0] + ' !');
                     }
                 });
             } else {
@@ -216,7 +226,7 @@ export class ExecService {
     }
 
     showServerListFreebox() {
-        this.commonService.getGranted().then(granted => {
+        this.commonService.getElement('granted').then(granted => {
             if (granted) {
                 this.commonService.textToSpeech('Attends quelques secondes s\'il te plait.');
                 this.freeboxService.launch('getServerMediaList').then(server => {
@@ -234,13 +244,13 @@ export class ExecService {
     }
 
     scanDirectoryFreebox(parameters) {
-        this.commonService.getGranted().then(granted => {
+        this.commonService.getElement('granted').then(granted => {
             if (granted) {
                 let path: any = '';
                 if (parameters[0] == 'musique') {
-                    path = '/Disque dur/Musiques';
+                    path = this.configService.pathMusic;
                 } else if (parameters[0] == 'vidéo') {
-                    path = '/Disque dur/Videos';
+                    path = this.configService.pathVideo;
                 }
                 this.medias = [];
                 this.scandirectory(path, parameters[0]).then(mediaScan => {
@@ -249,9 +259,9 @@ export class ExecService {
                         Array.prototype.push.apply(newMedias, mediaScan);
                         this.medias = newMedias;
                         if (parameters[0] === 'musique') {
-                            this.commonService.setMusics(this.medias);
+                            this.commonService.setElement('musics', this.medias);
                         } else if (parameters[0] === 'vidéo') {
-                            this.commonService.setVideos(this.medias);
+                            this.commonService.setElement('videos', this.medias);
                         }
                     }
                 });
@@ -267,19 +277,19 @@ export class ExecService {
 
     checkMedias(type) {
         if (type === 'musique') {
-            this.commonService.getMusics().then(getMusics => {
+            this.commonService.getElement('musics').then(getMusics => {
                 const musics: any = getMusics;
                 if (musics.length == this.medias.length) {
-                    this.subscriptionTimer.unsubscribe ();
+                    this.subscriptionTimer.unsubscribe();
                     this.commonService.textToSpeech('Et voilà ! J\'ai recensé ' + this.medias.length + ' titres.');
                     this.checkNextAction();
                 }
             });
         } else if (type === 'vidéo') {
-            this.commonService.getVideos().then(getVideos => {
+            this.commonService.getElement('videos').then(getVideos => {
                 const videos: any = getVideos;
                 if (videos.length == this.medias.length) {
-                    this.subscriptionTimer.unsubscribe ();
+                    this.subscriptionTimer.unsubscribe();
                     this.commonService.textToSpeech('Et voilà ! J\'ai recensé ' + this.medias.length + ' titres.');
                     this.checkNextAction();
                 }
@@ -293,9 +303,9 @@ export class ExecService {
             param['path'] = path;
             let extensions: any = [];
             if (type === 'musique') {
-                extensions = ['mp3', 'flac'];
+                extensions = this.configService.ExtensionMusic;
             } else if (type === 'vidéo') {
-                extensions = ['avi', 'mkv'];
+                extensions = this.configService.ExtensionVideo;
             }
             this.freeboxService.launch('getDirectoryInfo', param).then(directoryInfo => {
                 const directory: any = directoryInfo;
@@ -311,9 +321,9 @@ export class ExecService {
                                         Array.prototype.push.apply(newMedias, mediaScan);
                                         this.medias = newMedias;
                                         if (type === 'musique') {
-                                            this.commonService.setMusics(this.medias);
+                                            this.commonService.setElement('musics', this.medias);
                                         } else if (type === 'vidéo') {
-                                            this.commonService.setVideos(this.medias);
+                                            this.commonService.setElement('videos', this.medias);
                                         }
                                     }
                                 });
@@ -344,7 +354,7 @@ export class ExecService {
     }
 
     launchChannelFreebox(parameters) {
-        this.commonService.getGranted().then(granted => {
+        this.commonService.getElement('granted').then(granted => {
             if (granted) {
                 this.getChannelsFreebox().then(channelsFreebox => {
                     const channels: any = channelsFreebox;
@@ -385,8 +395,7 @@ export class ExecService {
             let blob: any = null;
             let request: XMLHttpRequest = new XMLHttpRequest();
             request.responseType = "blob";
-            request.onload = function()
-            {
+            request.onload = function () {
                 blob = request.response;
                 let reader = new FileReader();
                 reader.readAsText(blob);
@@ -423,14 +432,14 @@ export class ExecService {
                     }
                 }
             };
-            request.open("GET", this.urlPlaylistFreebox);
+            request.open("GET", this.configService.urlPlaylistFreebox);
             request.send();
         });
     }
 
     getChannelListFreebox() {
         return new Promise(resolve => {
-            this.commonService.getGranted().then(granted => {
+            this.commonService.getElement('granted').then(granted => {
                 if (granted) {
                     this.freeboxService.launch('getChannels').then(channelList => {
                         if (channelList['success']) {

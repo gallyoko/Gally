@@ -14,6 +14,8 @@ export class CommandPage {
       commands.push({name: 'hello'});
       commands.push({name: 'comment vas-tu'});
       commands.push({name: 'coucou c\'est *name'});
+      commands.push({name: 'ton maître'});
+      commands.push({name: 'c\'est *name'});
       commands.push({name: '*action la lumière du *room'});
       commands.push({name: '*action la lumière de la *room'});
       commands.push({name: 'connecte-toi à la freebox'});
@@ -23,7 +25,7 @@ export class CommandPage {
       commands.push({name: 'arrête la *media'});
       commands.push({name: 'affiches-moi les serveurs disponibles'});
       commands.push({name: 'scan le répertoire *directory'});
-      commands.push({name: 'mets la chaine *channel'});
+      commands.push({name: 'mets la chaîne *channel'});
       this.commands = commands;
 
   }

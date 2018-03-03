@@ -14,6 +14,7 @@ import {CommonService} from '../providers/common-service';
 import {ExecService} from '../providers/exec-service';
 import {SpeechService} from '../providers/speech-service';
 import {FreeboxService} from '../providers/freebox-service';
+import {ConfigService} from '../providers/config-service';
 
 import {Toast} from '@ionic-native/toast';
 import {SpinnerDialog} from '@ionic-native/spinner-dialog';
@@ -57,7 +58,8 @@ import {NativeStorage} from '@ionic-native/native-storage';
         CommonService,
         ExecService,
         SpeechService,
-        FreeboxService
+        FreeboxService,
+        ConfigService
     ]
 })
 export class AppModule {
