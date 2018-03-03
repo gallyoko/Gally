@@ -66,17 +66,17 @@ export class SpeechService {
                 }
             });
         } else {
-            /*if (annyang) {
+            if (annyang) {
                 annyang.addCommands(this.commands);
                 console.log(this.commands);
                 annyang.start();
             } else {
                 console.log('error');
-            }*/
-            const match:any = 'mets la chaine france 3';
-            //const match:any = 'balance la musique';
+            }
+            //const match:any = 'mets la chaîne france 2';
+            //const match:any = 'balance la vidéo';
             //const match:any = 'arrête la musique';
-            this.checkCommand(match);
+            //this.checkCommand(match);
         }
     }
 
@@ -116,7 +116,7 @@ export class SpeechService {
         commands.push({name: 'arrête la *media', execFunction: function(parameters) { motor.execService.stopMediaFreebox(parameters);}});
         commands.push({name: 'affiches-moi les serveurs disponibles', execFunction: function() { motor.execService.showServerListFreebox();}});
         commands.push({name: 'scan le répertoire *directory', execFunction: function(parameters) { motor.execService.scanDirectoryFreebox(parameters);}});
-        commands.push({name: 'mets la chaine *channel', execFunction: function(parameters) { motor.execService.launchChannelFreebox(parameters);}});
+        commands.push({name: 'mets la chaîne *channel', execFunction: function(parameters) { motor.execService.launchChannelFreebox(parameters);}});
 
         for (let i = 0; i < commands.length; i++) {
             this.regexCommands.push(this.commandToRegExp(commands[i].name));

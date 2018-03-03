@@ -12,6 +12,7 @@ export class ExecService {
 
     private subscriptionTimer:ISubscription;
     private medias: any = [];
+    private actionList: any = [];
     private urlExternFreebox: any = '';
     private urlLocalFreebox: any = '';
     private urlPlaylistFreebox: any = '';
@@ -21,6 +22,17 @@ export class ExecService {
         this.urlLocalFreebox = 'http://mafreebox.freebox.fr';
         this.urlPlaylistFreebox = '/playlist/playlist.m3u'; // dev
         //this.urlPlaylistFreebox = 'http://mafreebox.freebox.fr/freeboxtv/playlist.m3u'; // prod
+    }
+
+    checkNextAction() {
+        if (this.actionList.length > 0) {
+            console.log('this.actionList before', this.actionList);
+            const action: string = this.actionList[0].action;
+            const parameters: any = this.actionList[0].parameters;
+            this.actionList = this.actionList.slice(1);
+            console.log('this.actionList after', this.actionList);
+            this[action](parameters);
+        }
     }
 
     checkCoucou(parameters) {
@@ -98,6 +110,8 @@ export class ExecService {
                                     this.freeboxService.launch('startMedia', param).then(launch => {
                                         if (!launch) {
                                             this.commonService.textToSpeech('Je ne parviens pas à lancer la ' + parameters[0] + ' !');
+                                        } else {
+                                            this.commonService.textToSpeech('C\'est parti !');
                                         }
                                     });
                                 } else {
@@ -106,10 +120,18 @@ export class ExecService {
                             });
                         } else {
                             this.commonService.textToSpeech('Je dois d\'abord scanner la Freebox.');
+                            this.actionList.push({
+                                'action': 'launchMediaFreebox',
+                                'parameters': parameters
+                            });
                             this.scanDirectoryFreebox(parameters);
                         }
                     } else {
                         this.commonService.textToSpeech('Je dois d\'abord scanner la Freebox.');
+                        this.actionList.push({
+                            'action': 'launchMediaFreebox',
+                            'parameters': parameters
+                        });
                         this.scanDirectoryFreebox(parameters);
                     }
                 });
@@ -250,6 +272,7 @@ export class ExecService {
                 if (musics.length == this.medias.length) {
                     this.subscriptionTimer.unsubscribe ();
                     this.commonService.textToSpeech('Et voilà ! J\'ai recensé ' + this.medias.length + ' titres.');
+                    this.checkNextAction();
                 }
             });
         } else if (type === 'vidéo') {
@@ -258,6 +281,7 @@ export class ExecService {
                 if (videos.length == this.medias.length) {
                     this.subscriptionTimer.unsubscribe ();
                     this.commonService.textToSpeech('Et voilà ! J\'ai recensé ' + this.medias.length + ' titres.');
+                    this.checkNextAction();
                 }
             });
         }
@@ -331,15 +355,12 @@ export class ExecService {
                     console.log('selectChannels', selectChannels);
                     this.getChannelListFreebox().then(channelListFreebox => {
                         const channelList: any = channelListFreebox;
-                        console.log('channelList', channelList);
                         const selectChannel: any = channelList.filter((channel) =>
                             channel.number == selectChannels[0].number
                         );
-                        console.log('selectChannel', selectChannel);
                         const selectChannelQuality: any = selectChannel[0].streams.filter((channelInfo) =>
                             channelInfo.quality.toLowerCase() == selectChannels[0].quality.toLowerCase()
                         );
-                        console.log('url', selectChannelQuality[0].hls);
                         const param: any = [];
                         param['media'] = selectChannelQuality[0].hls;
                         this.freeboxService.launch('startMedia', param).then(launch => {
