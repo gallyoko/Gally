@@ -15,8 +15,10 @@ export class FreeboxService {
     private routelaunchMedia: any;
     private routeAirMedia: any;
     private routeLsPath: any;
+    private routeShareLinks: any;
+    private routeChannels: any;
 
-    constructor(public http: HttpClient, public commonService: CommonService) {
+    constructor(private http: HttpClient, public commonService: CommonService) {
         this.routeApi = '/api/'; // => pour le dev
         //this.routeApi = 'http://mafreebox.freebox.fr/api/v4/'; // => pour la prod
         this.routeAuth = this.routeApi + 'login/authorize/';
@@ -26,6 +28,8 @@ export class FreeboxService {
         this.routeAirMedia = this.routeApi + 'airmedia/receivers/';
         this.routelaunchMedia = this.routeApi + 'airmedia/receivers/Freebox%20Player/';
         this.routeLsPath = this.routeApi + 'fs/ls/';
+        this.routeShareLinks = this.routeApi + 'share_link/';
+        this.routeChannels = this.routeApi + 'tv/bouquets/freeboxtv/channels';
     }
 
     auth() {
@@ -202,7 +206,7 @@ export class FreeboxService {
 
     }
 
-    startMedia(tokenSession) {
+    startMedia(tokenSession, parameters=[]) {
         return new Promise(resolve => {
             let header = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
                 .set('X-Fbx-App-Auth', tokenSession);
@@ -212,10 +216,10 @@ export class FreeboxService {
             const request: any = {
                 "action": "start",
                 "media_type": "video",
-                "media": 'http://mafreebox.freebox.fr/share/6Ao9E-t242TLCTCf/04%20-%20Hand%20in%20My%20Pocket.mp3'
+                "media": parameters['media']
             };
-            const parameters: any = JSON.stringify(request);
-            this.http.post(this.routelaunchMedia, parameters, reqOpts)
+            const param: any = JSON.stringify(request);
+            this.http.post(this.routelaunchMedia, param, reqOpts)
                 .subscribe(
                     response => {
                         resolve(response);
@@ -262,7 +266,6 @@ export class FreeboxService {
             this.http.get(this.routeAirMedia, reqOpts)
                 .subscribe(
                     response => {
-                        console.log(response);
                         resolve(response);
                     },
                     err => {
@@ -282,7 +285,88 @@ export class FreeboxService {
             this.http.get(this.routeLsPath + btoa(parameters['path']), reqOpts)
                 .subscribe(
                     response => {
-                        console.log(response);
+                        resolve(response);
+                    },
+                    err => {
+                        resolve({'success': false});
+                    }
+                );
+        });
+    }
+
+    getShareLinks(tokenSession) {
+        return new Promise(resolve => {
+            let header = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('X-Fbx-App-Auth', tokenSession);
+            const reqOpts = {
+                headers: header
+            };
+            this.http.get(this.routeShareLinks, reqOpts)
+                .subscribe(
+                    response => {
+                        resolve(response);
+                    },
+                    err => {
+                        resolve({'success': false});
+                    }
+                );
+        });
+    }
+
+    setShareLink(tokenSession, parameters=[]) {
+        return new Promise(resolve => {
+            let header = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('X-Fbx-App-Auth', tokenSession);
+            const reqOpts = {
+                headers: header
+            };
+            let pathEncoded: any = '';
+            if (btoa(parameters['path']).substr(-1, 1) === '=') {
+                pathEncoded = btoa(parameters['path'] + '/');
+            } else {
+                pathEncoded = btoa(parameters['path']);
+            }
+            const request: any = {
+                'path': pathEncoded,
+                'expire': 0
+            };
+            const param: any = JSON.stringify(request);
+            this.http.post(this.routeShareLinks, param, reqOpts)
+                .subscribe(
+                    response => {
+                        resolve(response);
+                    },
+                    err => {
+                        resolve({'success': false});
+                    }
+                );
+        });
+    }
+
+    deleteShareLink(tokenSession, parameters=[]) {
+        return new Promise(resolve => {
+            let header = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('X-Fbx-App-Auth', tokenSession);
+            const reqOpts = {
+                headers: header
+            };
+            this.http.delete(this.routeShareLinks + parameters['token'], reqOpts)
+                .subscribe(
+                    response => {
+                        resolve(response);
+                    },
+                    err => {
+                        resolve({'success': false});
+                    }
+                );
+        });
+    }
+
+    getChannels() {
+        return new Promise(resolve => {
+            this.http.get(this.routeChannels)
+                .subscribe(
+                    response => {
                         resolve(response);
                     },
                     err => {
