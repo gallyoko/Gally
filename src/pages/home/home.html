@@ -12,4 +12,14 @@
       <ion-icon name="ios-mic"></ion-icon>
     </button>
   </p>
+  <p style="padding-top: 100px">
+    <ion-list *ngIf="requireAutorisation">
+      <ion-list-header>
+        Permission requise
+      </ion-list-header>
+      <ion-item *ngFor="let permission of permissions" (click)="requestPermission(permission)">
+        <span *ngIf="!permission.actif">{{permission.name}}</span>
+      </ion-item>
+    </ion-list>
+  </p>
 </ion-content>

@@ -13,6 +13,7 @@ import {FreeboxService} from '../../providers/freebox-service';
 export class HomePage {
     private permissionMicro: boolean = false;
     private permissions: any = [];
+    private requireAutorisation: boolean = false;
 
     constructor(public navCtrl: NavController, private speechService: SpeechService,
                 private commonService: CommonService) {
@@ -20,48 +21,55 @@ export class HomePage {
             {
                 'name': 'le micro',
                 'service': 'RECORD_AUDIO',
+                'actif': false
             },
             {
                 'name': 'la géolocalisation',
                 'service': 'ACCESS_COARSE_LOCATION',
+                'actif': false
             }
         ];
         this.checkPermissions();
     }
 
     checkPermissions() {
-        const requestPermission: any = [];
+        this.commonService.loadingShow('Veuillez patienter pendant le contrôle des autorisations...');
         for (let i = 0; i < this.permissions.length; i++) {
             this.commonService.checkPermission(this.permissions[i].service).then(checkPermission => {
                 if(checkPermission) {
-                    this.permissionMicro = true;
+                    this.permissions[i].actif = true;
+                    if (this.permissions[i].service === 'RECORD_AUDIO') {
+                        this.permissionMicro = true;
+                    }
                 } else {
-                    requestPermission.push(this.permissions[i]);
+                    this.requireAutorisation = true;
+                    this.permissions[i].actif = false;
                 }
                 if (i === (this.permissions.length - 1)) {
-                    this.requestPermission(requestPermission);
+                    this.commonService.loadingHide();
                 }
             });
         }
-
     }
 
-    requestPermission(requestPermission) {
-        let permissionDeviceTxt: string = '';
-        let permissionService: any = [];
-        for (let i = 0; i < requestPermission.length; i++) {
-            if (i > 0) {
-                permissionDeviceTxt += ' et ';
-            }
-            permissionDeviceTxt += requestPermission[i].name;
-            permissionService.push(requestPermission[i].service)
-        }
-        this.commonService.textToSpeech('Tu dois m\'autoriser à utiliser ' + permissionDeviceTxt + ' !');
-        this.commonService.requestPermission(permissionService).then(requestPermission => {
+    requestPermission(permission) {
+        this.commonService.requestPermission(permission.service).then(requestPermission => {
             if(requestPermission) {
-                this.permissionMicro = true;
+                if (permission.service === 'RECORD_AUDIO') {
+                    this.permissionMicro = true;
+                }
+                this.permissions = this.permissions.filter((permissionCheck) =>
+                    permissionCheck.service !== permission.service
+                );
+                if (this.permissions.length == 0) {
+                    this.requireAutorisation = false;
+                }
             } else {
-                this.commonService.textToSpeech('Tu dois accepter sinon tu ne pourras pas m\'utiliser !');
+                if (permission.service === 'RECORD_AUDIO') {
+                    this.commonService.textToSpeech('Tu dois accepter sinon tu ne pourras pas du tout m\'utiliser !');
+                } else {
+                    this.commonService.textToSpeech('Tu dois accepter sinon tu ne pourras pas utiliser ' + permission.name + '!');
+                }
             }
         });
     }

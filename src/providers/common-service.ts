@@ -187,14 +187,10 @@ export class CommonService {
         });
     }
 
-    requestPermission(services) {
+    requestPermission(service) {
         return new Promise(resolve => {
             if (this.platform.is('cordova')) {
-                const permissions: any = [];
-                for (let i = 0; i < services.length; i++) {
-                    permissions.push(this.androidPermissions.PERMISSION[services[i]]);
-                }
-                this.androidPermissions.requestPermission(permissions).then(
+                this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION[service]).then(
                     result => resolve(result.hasPermission),
                     err => resolve(false)
                 );
