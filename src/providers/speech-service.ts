@@ -66,17 +66,18 @@ export class SpeechService {
                 }
             });
         } else {
-            /*if (annyang) {
+            if (annyang) {
                 annyang.addCommands(this.commands);
                 console.log(this.commands);
                 annyang.start();
             } else {
                 console.log('error');
-            }*/
+            }
+            //const match:any = 'affiche-moi ma position';
             //const match:any = 'mets la chaîne france 2';
-            const match:any = 'balance la vidéo';
+            //const match:any = 'balance la vidéo';
             //const match:any = 'arrête la musique';
-            this.checkCommand(match);
+            //this.checkCommand(match);
         }
     }
 
@@ -103,9 +104,11 @@ export class SpeechService {
     setCommands() {
         const motor: any = this;
         const commands: any = [];
+        commands.push({name: 'oui', execFunction: function() { motor.execService.yes(); }});
+        commands.push({name: 'non', execFunction: function() { motor.execService.no(); }});
+        commands.push({name: 'comment vas-tu', execFunction: function() { motor.execService.howAreYou(motor); }});
         commands.push({name: 'coucou', execFunction: function() { motor.commonService.textToSpeech('Coucou Fred !'); }});
         commands.push({name: 'hello', execFunction: function() { motor.commonService.textToSpeech('Hello Fred !'); }});
-        commands.push({name: 'comment vas-tu', execFunction: function() { motor.commonService.textToSpeech('ça va et toi ?'); }});
         commands.push({name: 'coucou c\'est *name', execFunction: function(parameters) { motor.execService.checkCoucou(motor, parameters); }});
         commands.push({name: 'ton maître', execFunction: function() { motor.execService.analizeName(['ton maître']); }});
         commands.push({name: 'c\'est *name', execFunction: function(parameters) { motor.execService.analizeName(parameters); }});
@@ -119,6 +122,9 @@ export class SpeechService {
         commands.push({name: 'affiches-moi les serveurs disponibles', execFunction: function() { motor.execService.showServerListFreebox();}});
         commands.push({name: 'scan le répertoire *directory', execFunction: function(parameters) { motor.execService.scanDirectoryFreebox(parameters);}});
         commands.push({name: 'mets la chaîne *channel', execFunction: function(parameters) { motor.execService.launchChannelFreebox(parameters);}});
+        commands.push({name: 'affiche-moi ma position', execFunction: function() { motor.execService.getCurrentPosition();}});
+        commands.push({name: 'donne-moi ma position', execFunction: function() { motor.execService.getCurrentPosition();}});
+        commands.push({name: 'localise-moi', execFunction: function() { motor.execService.getCurrentPosition();}});
 
         for (let i = 0; i < commands.length; i++) {
             this.regexCommands.push(this.commandToRegExp(commands[i].name));

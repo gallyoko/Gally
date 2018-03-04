@@ -23,6 +23,7 @@ import {SplashScreen} from '@ionic-native/splash-screen';
 import {SpeechRecognition} from '@ionic-native/speech-recognition';
 import {TextToSpeech} from '@ionic-native/text-to-speech';
 import {NativeStorage} from '@ionic-native/native-storage';
+import {Geolocation} from '@ionic-native/geolocation';
 
 @NgModule({
     declarations: [
@@ -54,6 +55,7 @@ import {NativeStorage} from '@ionic-native/native-storage';
         TextToSpeech,
         SpeechRecognition,
         NativeStorage,
+        Geolocation,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
         CommonService,
         ExecService,

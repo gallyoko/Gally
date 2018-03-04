@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {Platform, LoadingController, ToastController} from 'ionic-angular';
-import { Storage } from '@ionic/storage';
+import {Storage} from '@ionic/storage';
 import {SpinnerDialog} from '@ionic-native/spinner-dialog';
 import {Toast} from '@ionic-native/toast';
 import {TextToSpeech} from '@ionic-native/text-to-speech';
-import { NativeStorage } from '@ionic-native/native-storage';
+import {NativeStorage} from '@ionic-native/native-storage';
+import {Geolocation} from '@ionic-native/geolocation';
 import 'rxjs/add/operator/map';
 
 @Injectable()
@@ -15,7 +16,7 @@ export class CommonService {
     constructor(private platform: Platform,
                 private loadingCtrl: LoadingController, private toastCtrl: ToastController,
                 private spinnerDialog: SpinnerDialog, private toast: Toast, private tts: TextToSpeech,
-                private nativeStorage: NativeStorage, private storage: Storage) {
+                private nativeStorage: NativeStorage, private storage: Storage, private geolocation: Geolocation) {
 
     }
 
@@ -122,7 +123,7 @@ export class CommonService {
     concatElementArray(name, value) {
         return new Promise(resolve => {
             this.getElement(name).then(elements => {
-                let elementsToSave:any = [];
+                let elementsToSave: any = [];
                 if (elements) {
                     elementsToSave = elements;
                 }
@@ -140,10 +141,10 @@ export class CommonService {
 
     removeElementArray(name, value) {
         return this.getElement(name).then(elements => {
-            let elementsToSave:any = [];
+            let elementsToSave: any = [];
             if (elements) {
                 elementsToSave = elements;
-                for(let i = 0; i < elements.length; i++) {
+                for (let i = 0; i < elements.length; i++) {
                     if (value.title == elements[i].title) {
                         elementsToSave.splice(i, 1);
                     }
@@ -152,6 +153,22 @@ export class CommonService {
             return this.setElement(name, elementsToSave).then(setElements => {
                 return setElements;
             });
+        });
+    }
+
+    getCurrentPosition() {
+        return new Promise(resolve => {
+            if (this.platform.is('cordova')) {
+                this.geolocation.getCurrentPosition().then((position) => {
+                    resolve(position);
+                }).catch(() => {
+                    resolve(false);
+                });
+            } else {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    resolve(position);
+                });
+            }
         });
     }
 

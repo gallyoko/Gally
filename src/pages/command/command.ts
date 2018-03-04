@@ -26,6 +26,9 @@ export class CommandPage {
       commands.push({name: 'affiches-moi les serveurs disponibles'});
       commands.push({name: 'scan le répertoire *directory'});
       commands.push({name: 'mets la chaîne *channel'});
+      commands.push({name: 'affiche-moi ma position'});
+      commands.push({name: 'donne-moi ma position'});
+      commands.push({name: 'localise-moi'});
       this.commands = commands;
 
   }

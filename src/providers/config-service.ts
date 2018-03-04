@@ -18,13 +18,13 @@ export class ConfigService {
     public ExtensionVideo: any = [];
 
     constructor() {
-        this.env = 'dev';
-        //this.env = 'prod';
+        //this.env = 'dev';
+        this.env = 'prod';
 
         this.urlExternFreebox = 'https://fwed.freeboxos.fr:16129';
         this.urlLocalFreebox = 'http://mafreebox.freebox.fr';
         this.appId = 'fr.gallyoko.gally';
-        this.appVersion = '1.0a';
+        this.appVersion = '1.0';
         this.appName = 'Gally';
         this.appDevice = 'Gally';
         this.pathMusic = '/Disque dur/Musiques';

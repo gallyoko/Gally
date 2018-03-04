@@ -16,9 +16,18 @@ export class ExecService {
     private medias: any = [];
     private actionList: any = [];
     private waitingResponse: boolean = false;
+    private waitingFunction: string;
+    private callReturnFunction: any = [];
 
     constructor(private commonService: CommonService, private freeboxService: FreeboxService,
                 private configService: ConfigService) {
+        this.callReturnFunction = [
+            {
+                'request': 'howAreYou',
+                'callTrue': 'feelingGood',
+                'callFalse': 'feelingBad',
+            }
+        ];
     }
 
     checkNextAction() {
@@ -28,6 +37,38 @@ export class ExecService {
             this.actionList = this.actionList.slice(1);
             this[action](parameters);
         }
+    }
+
+    yes() {
+        if (this.waitingResponse) {
+            this.waitingResponse = false;
+            const functionReturn: any = this.callReturnFunction.filter((functionToCall) =>
+                functionToCall.request == this.waitingFunction
+            );
+            this[functionReturn[0].callTrue]();
+        } else {
+            this.commonService.textToSpeech('Oui à quoi ?');
+        }
+    }
+
+    no() {
+        if (this.waitingResponse) {
+            this.waitingResponse = false;
+            const functionReturn: any = this.callReturnFunction.filter((functionToCall) =>
+                functionToCall.request == this.waitingFunction
+            );
+            this[functionReturn[0].callFalse]();
+        } else {
+            this.commonService.textToSpeech('Non à quoi ?');
+        }
+    }
+
+    feelingGood() {
+        this.commonService.textToSpeech('C\'est cool !');
+    }
+
+    feelingBad() {
+        this.commonService.textToSpeech('Ah merde !');
     }
 
     checkCoucou(speechService: SpeechService, parameters) {
@@ -51,6 +92,13 @@ export class ExecService {
         } else {
             this.commonService.textToSpeech('Et alors ?');
         }
+    }
+
+    howAreYou(speechService: SpeechService) {
+        this.commonService.textToSpeech('ça va et toi ? oui ou non ?');
+        this.waitingFunction = 'howAreYou';
+        this.waitingResponse = true;
+        speechService.startSpeechRecognition();
     }
 
     checkLight(parameters, conjonction) {
@@ -454,6 +502,17 @@ export class ExecService {
                     resolve([]);
                 }
             });
+        });
+    }
+
+    getCurrentPosition() {
+        this.commonService.getCurrentPosition().then(position => {
+            if (!position) {
+                this.commonService.textToSpeech('Désolé mais je ne parviens pas à te localiser !');
+            } else {
+                this.commonService.textToSpeech('Ta position latitude est ' + position['coords'].latitude +
+                    ' et longitude ' + position['coords'].longitude);
+            }
         });
     }
 
