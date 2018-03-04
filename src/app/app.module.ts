@@ -24,6 +24,7 @@ import {SpeechRecognition} from '@ionic-native/speech-recognition';
 import {TextToSpeech} from '@ionic-native/text-to-speech';
 import {NativeStorage} from '@ionic-native/native-storage';
 import {Geolocation} from '@ionic-native/geolocation';
+import {AndroidPermissions} from '@ionic-native/android-permissions';
 
 @NgModule({
     declarations: [
@@ -56,6 +57,7 @@ import {Geolocation} from '@ionic-native/geolocation';
         SpeechRecognition,
         NativeStorage,
         Geolocation,
+        AndroidPermissions,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
         CommonService,
         ExecService,

@@ -6,6 +6,7 @@ import {Toast} from '@ionic-native/toast';
 import {TextToSpeech} from '@ionic-native/text-to-speech';
 import {NativeStorage} from '@ionic-native/native-storage';
 import {Geolocation} from '@ionic-native/geolocation';
+import {AndroidPermissions} from '@ionic-native/android-permissions';
 import 'rxjs/add/operator/map';
 
 @Injectable()
@@ -16,7 +17,8 @@ export class CommonService {
     constructor(private platform: Platform,
                 private loadingCtrl: LoadingController, private toastCtrl: ToastController,
                 private spinnerDialog: SpinnerDialog, private toast: Toast, private tts: TextToSpeech,
-                private nativeStorage: NativeStorage, private storage: Storage, private geolocation: Geolocation) {
+                private nativeStorage: NativeStorage, private storage: Storage, private geolocation: Geolocation,
+                private androidPermissions: AndroidPermissions) {
 
     }
 
@@ -168,6 +170,36 @@ export class CommonService {
                 navigator.geolocation.getCurrentPosition(function (position) {
                     resolve(position);
                 });
+            }
+        });
+    }
+
+    checkPermission(service: string) {
+        return new Promise(resolve => {
+            if (this.platform.is('cordova')) {
+                this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION[service]).then(
+                    result => resolve(result.hasPermission),
+                    err => resolve(false)
+                );
+            } else {
+                resolve(true);
+            }
+        });
+    }
+
+    requestPermission(services) {
+        return new Promise(resolve => {
+            if (this.platform.is('cordova')) {
+                const permissions: any = [];
+                for (let i = 0; i < services.length; i++) {
+                    permissions.push(this.androidPermissions.PERMISSION[services[i]]);
+                }
+                this.androidPermissions.requestPermission(permissions).then(
+                    result => resolve(result.hasPermission),
+                    err => resolve(false)
+                );
+            } else {
+                resolve(true);
             }
         });
     }
