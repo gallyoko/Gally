@@ -14,6 +14,7 @@ import {CommonService} from '../providers/common-service';
 import {ExecService} from '../providers/exec-service';
 import {SpeechService} from '../providers/speech-service';
 import {FreeboxService} from '../providers/freebox-service';
+import {LightService} from '../providers/light-service';
 import {ConfigService} from '../providers/config-service';
 
 import {Toast} from '@ionic-native/toast';
@@ -63,6 +64,7 @@ import {AndroidPermissions} from '@ionic-native/android-permissions';
         ExecService,
         SpeechService,
         FreeboxService,
+        LightService,
         ConfigService
     ]
 })

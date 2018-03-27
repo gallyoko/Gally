@@ -4,11 +4,12 @@ import {CommonService} from '../../providers/common-service';
 import {ExecService} from '../../providers/exec-service';
 import {SpeechService} from '../../providers/speech-service';
 import {FreeboxService} from '../../providers/freebox-service';
+import {LightService} from '../../providers/light-service';
 
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html',
-    providers: [SpeechService, CommonService, ExecService, FreeboxService]
+    providers: [SpeechService, CommonService, ExecService, FreeboxService, LightService]
 })
 export class HomePage {
     private permissionMicro: boolean = false;

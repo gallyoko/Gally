@@ -8,6 +8,7 @@ export class ConfigService {
     public urlLocalFreebox: any;
     public urlPlaylistFreebox: any;
     public urlApiFreebox: any;
+    public urlApiPerso: any;
     public appId: any;
     public appVersion: any;
     public appName: any;
@@ -18,8 +19,8 @@ export class ConfigService {
     public ExtensionVideo: any = [];
 
     constructor() {
-        //this.env = 'dev';
-        this.env = 'prod';
+        this.env = 'dev';
+        //this.env = 'prod';
 
         this.urlExternFreebox = 'https://fwed.freeboxos.fr:16129';
         this.urlLocalFreebox = 'http://mafreebox.freebox.fr';
@@ -33,9 +34,12 @@ export class ConfigService {
         this.ExtensionVideo = ['avi', 'mkv'];
         if (this.env === 'dev') {
             this.urlApiFreebox = '/api/';
+            //this.urlApiPerso = '/perso/';
+            this.urlApiPerso = 'http://172.20.0.2:8091/api/';
             this.urlPlaylistFreebox = '/playlist/playlist.m3u';
         } else {
             this.urlApiFreebox = 'http://mafreebox.freebox.fr/api/v4/';
+            this.urlApiPerso = 'http://172.20.0.2:8091/api/';
             this.urlPlaylistFreebox = 'http://mafreebox.freebox.fr/freeboxtv/playlist.m3u';
         }
     }

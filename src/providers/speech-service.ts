@@ -68,7 +68,7 @@ export class SpeechService {
         } else {
             if (annyang) {
                 annyang.addCommands(this.commands);
-                console.log(this.commands);
+                //console.log(this.commands);
                 annyang.start();
             } else {
                 console.log('error');
@@ -77,7 +77,9 @@ export class SpeechService {
             //const match:any = 'mets la chaîne france 2';
             //const match:any = 'balance la vidéo';
             //const match:any = 'arrête la musique';
-            //this.checkCommand(match);
+            //const match:any = 'allume la lumière du salon';
+            const match:any = 'éteind la lumière du salon';
+            this.checkCommand(match);
         }
     }
 

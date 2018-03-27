@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {CommonService} from './common-service';
 import {ConfigService} from './config-service';
 import {FreeboxService} from './freebox-service';
+import {LightService} from './light-service';
 import {SpeechService} from './speech-service';
 import {MediaModel} from '../models/media.model';
 import {ChannelModel} from '../models/channel.model';
@@ -20,7 +21,7 @@ export class ExecService {
     private callReturnFunction: any = [];
 
     constructor(private commonService: CommonService, private freeboxService: FreeboxService,
-                private configService: ConfigService) {
+            private lightService: LightService, private configService: ConfigService) {
         this.callReturnFunction = [
             {
                 'request': 'howAreYou',
@@ -104,9 +105,21 @@ export class ExecService {
     checkLight(parameters, conjonction) {
         let message: any = 'La lumière ' + conjonction + ' ' + parameters[1] + ' est ';
         if (parameters[0] === 'allume') {
-            this.commonService.textToSpeech(message + 'allumée !');
+            this.lightService.put('on', 2).then(put => {
+                if (put) {
+                    this.commonService.textToSpeech(message + 'allumée !');
+                } else {
+                    this.commonService.textToSpeech(message + 'en erreur !');
+                }
+            });
         } else {
-            this.commonService.textToSpeech(message + 'éteinte !');
+            this.lightService.put('off', 2).then(put => {
+                if (put) {
+                    this.commonService.textToSpeech(message + 'éteinte !');
+                } else {
+                    this.commonService.textToSpeech(message + 'en erreur !');
+                }
+            });
         }
     }
 
