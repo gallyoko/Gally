@@ -3,6 +3,7 @@ import {CommonService} from './common-service';
 import {ConfigService} from './config-service';
 import {FreeboxService} from './freebox-service';
 import {LightService} from './light-service';
+import {RecalboxService} from './recalbox-service';
 import {SpeechService} from './speech-service';
 import {MediaModel} from '../models/media.model';
 import {ChannelModel} from '../models/channel.model';
@@ -21,7 +22,8 @@ export class ExecService {
     private callReturnFunction: any = [];
 
     constructor(private commonService: CommonService, private freeboxService: FreeboxService,
-            private lightService: LightService, private configService: ConfigService) {
+            private lightService: LightService, private recalboxService: RecalboxService,
+            private configService: ConfigService) {
         this.callReturnFunction = [
             {
                 'request': 'howAreYou',
@@ -529,6 +531,16 @@ export class ExecService {
             } else {
                 this.commonService.textToSpeech('Ta position latitude est ' + position['coords'].latitude +
                     ' et longitude ' + position['coords'].longitude);
+            }
+        });
+    }
+
+    stopGameRecalbox() {
+        this.recalboxService.stopGame().then(stop => {
+            if (stop['success']) {
+                this.commonService.textToSpeech('Le jeux a été coupé !');
+            } else {
+                this.commonService.textToSpeech('Erreur lors de la coupure du jeu !');
             }
         });
     }

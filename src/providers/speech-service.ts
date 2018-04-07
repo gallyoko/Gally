@@ -132,6 +132,7 @@ export class SpeechService {
         commands.push({name: 'affiche-moi ma position', execFunction: function() { motor.execService.getCurrentPosition();}});
         commands.push({name: 'donne-moi ma position', execFunction: function() { motor.execService.getCurrentPosition();}});
         commands.push({name: 'localise-moi', execFunction: function() { motor.execService.getCurrentPosition();}});
+        commands.push({name: 'arrête le jeu', execFunction: function() { motor.execService.stopGameRecalbox();}});
 
         for (let i = 0; i < commands.length; i++) {
             this.regexCommands.push(this.commandToRegExp(commands[i].name));

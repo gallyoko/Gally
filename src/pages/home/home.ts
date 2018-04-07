@@ -5,11 +5,12 @@ import {ExecService} from '../../providers/exec-service';
 import {SpeechService} from '../../providers/speech-service';
 import {FreeboxService} from '../../providers/freebox-service';
 import {LightService} from '../../providers/light-service';
+import {RecalboxService} from '../../providers/recalbox-service';
 
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html',
-    providers: [SpeechService, CommonService, ExecService, FreeboxService, LightService]
+    providers: [SpeechService, CommonService, ExecService, FreeboxService, LightService, RecalboxService]
 })
 export class HomePage {
     private permissionMicro: boolean = false;
