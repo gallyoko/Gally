@@ -44,11 +44,7 @@ export class CommonService {
 
     toastShow(message) {
         if (this.platform.is('cordova')) {
-            this.toast.show(message, "short", "bottom").subscribe(
-                toast => {
-                    //console.log(toast);
-                }
-            );
+            this.toast.show(message, "short", "bottom");
         } else {
             let toast = this.toastCtrl.create({
                 message: message,
@@ -69,8 +65,13 @@ export class CommonService {
                 .then(() => this.toastShow(text))
                 .catch((reason: any) => console.log(reason));
         } else {
-            // todo
-            this.toastShow(text);
+            const voices = speechSynthesis.getVoices();
+            let message:any = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(message);
+            message.voice = voices[6]; // french
+            message.volume = 1;
+            message.pitch = 1;
+            message.rate = 1;
         }
     }
 

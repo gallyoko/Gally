@@ -67,19 +67,24 @@ export class SpeechService {
             });
         } else {
             if (annyang) {
-                annyang.addCommands(this.commands);
-                //console.log(this.commands);
-                annyang.start();
+                annyang.setLanguage('fr-FR');
+                const motor: any = this;
+                annyang.addCallback('result', function(matches) {
+                    if (matches.length > 0) {
+                        if (!motor.checkCommand(matches[0])) {
+                            motor.commonService.textToSpeech("Aucune correspondance pour : " + matches[0]);
+                        }
+                    } else {
+                        motor.commonService.textToSpeech("J'ai pas tout compris !");
+                    }
+                });
+                annyang.addCallback('end', function() {
+                    this.removeCallback('result');
+                });
+                annyang.start({ autoRestart: false, continuous: false });
             } else {
-                console.log('error');
+                this.commonService.textToSpeech('la reconnaissance vocale ne fonctionne pas !');
             }
-            //const match:any = 'affiche-moi ma position';
-            //const match:any = 'mets la chaîne france 2';
-            //const match:any = 'balance la vidéo';
-            //const match:any = 'arrête la musique';
-            //const match:any = 'allume la lumière du salon';
-            const match:any = 'éteind la lumière du salon';
-            this.checkCommand(match);
         }
     }
 
