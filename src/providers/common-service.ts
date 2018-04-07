@@ -75,12 +75,12 @@ export class CommonService {
             message.volume = 1;
             message.pitch = 1;
             message.rate = 1;
+            message.onstart = function() {
+                motor.toastShow(text);
+            };
             message.onerror = function(error) {
                 motor.toastShow('Erreur de synthétisation vocale.');
                 console.log(error);
-            };
-            message.onend = function() {
-                motor.toastShow(text);
             };
             speechSynthesis.speak(message);
         }

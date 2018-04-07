@@ -104,8 +104,12 @@ export class ExecService {
 
     checkLight(parameters, conjonction) {
         let message: any = 'La lumière ' + conjonction + ' ' + parameters[1] + ' est ';
+        let id: any = 1;
+        if (parameters[1] === 'salon') {
+            id = 2;
+        }
         if (parameters[0] === 'allume') {
-            this.lightService.put('on', 2).then(put => {
+            this.lightService.put('on', id).then(put => {
                 if (put) {
                     this.commonService.textToSpeech(message + 'allumée !');
                 } else {
@@ -113,7 +117,7 @@ export class ExecService {
                 }
             });
         } else {
-            this.lightService.put('off', 2).then(put => {
+            this.lightService.put('off', id).then(put => {
                 if (put) {
                     this.commonService.textToSpeech(message + 'éteinte !');
                 } else {
