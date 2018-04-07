@@ -56,22 +56,33 @@ export class CommonService {
     }
 
     textToSpeech(text) {
+        const motor: any = this;
         if (this.platform.is('cordova')) {
             const options: any = {
                 text: text,
                 locale: 'fr-FR'
             };
             this.tts.speak(options)
-                .then(() => this.toastShow(text))
-                .catch((reason: any) => console.log(reason));
+                .then(() => motor.toastShow(text))
+                .catch((error) => {
+                    motor.toastShow('Erreur de synthétisation vocale.');
+                    console.log(error);
+                });
         } else {
             const voices = speechSynthesis.getVoices();
             let message:any = new SpeechSynthesisUtterance(text);
-            speechSynthesis.speak(message);
             message.voice = voices[6]; // french
             message.volume = 1;
             message.pitch = 1;
             message.rate = 1;
+            message.onerror = function(error) {
+                motor.toastShow('Erreur de synthétisation vocale.');
+                console.log(error);
+            };
+            message.onend = function() {
+                motor.toastShow(text);
+            };
+            speechSynthesis.speak(message);
         }
     }
 
